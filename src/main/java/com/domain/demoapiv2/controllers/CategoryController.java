@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
-import org.springframework.validation.ObjectError;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,9 +20,10 @@ import com.domain.demoapiv2.dto.CategoryData;
 import com.domain.demoapiv2.dto.ResponseData;
 import com.domain.demoapiv2.models.entities.Category;
 import com.domain.demoapiv2.services.CategoryService;
+import com.domain.demoapiv2.utility.ErrorParsingUtility;
 
 @RestController
-@RequestMapping("/api/category")
+@RequestMapping("/api/categories")
 public class CategoryController {
 
     @Autowired
@@ -35,11 +36,8 @@ public class CategoryController {
     public ResponseEntity<ResponseData<Category>> create(@Valid @RequestBody CategoryData categoryData, Errors errors) {
         ResponseData<Category> responseData = new ResponseData<>();
         if (errors.hasErrors()) {
-            for (ObjectError error : errors.getAllErrors()) {
-                responseData.getMessages().add(error.getDefaultMessage());
-            }
             responseData.setStatus(false);
-            responseData.setPayload(null);
+            responseData.setMessages(ErrorParsingUtility.parse(errors));
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseData);
         }
         Category category = modelMapper.map(categoryData, Category.class);
@@ -53,7 +51,7 @@ public class CategoryController {
         return categoryService.findAll();
     }
 
-    @GetMapping("/id")
+    @GetMapping("/{id}")
     public Category findOne(@PathVariable Long id) {
         return categoryService.findOne(id);
     }
@@ -61,18 +59,20 @@ public class CategoryController {
     @PutMapping
     public ResponseEntity<ResponseData<Category>> update(@Valid @RequestBody CategoryData categoryData, Errors errors) {
         ResponseData<Category> responseData = new ResponseData<>();
-        if(errors.hasErrors()) {
-            for (ObjectError error : errors.getAllErrors()) {
-                responseData.getMessages().add(error.getDefaultMessage());
-            }
+        if (errors.hasErrors()) {
             responseData.setStatus(false);
-            responseData.setPayload(null);
+            responseData.setMessages(ErrorParsingUtility.parse(errors));
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseData);
         }
-        Category category = modelMapper.map(categoryData, Category.class)
+        Category category = modelMapper.map(categoryData, Category.class);
         responseData.setStatus(true);
         responseData.setPayload(categoryService.save(category));
         return ResponseEntity.ok(responseData);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteOne(@PathVariable Long id) {
+        categoryService.removeOne(id);
     }
 
 }

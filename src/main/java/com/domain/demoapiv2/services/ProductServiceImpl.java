@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.domain.demoapiv2.models.entities.Product;
+import com.domain.demoapiv2.models.entities.Supplier;
 import com.domain.demoapiv2.models.repos.ProductRepo;
 
 @Service
@@ -46,6 +47,16 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<Product> findByName(String name) {
         return productRepo.findByNameContains(name);
+    }
+
+    @Override
+    public void addSupplier(Supplier supplier, Long productId) {
+        Product product = findOne(productId);
+        if (product == null) {
+            throw new RuntimeException("Product with ID:" + productId + " not found");
+        }
+        product.getSuppliers().add(supplier);
+        save(product);
     }
 
 }

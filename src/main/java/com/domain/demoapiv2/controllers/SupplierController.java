@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
-import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,13 +17,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.domain.demoapiv2.dto.ResponseData;
 import com.domain.demoapiv2.dto.SupplierData;
-import com.domain.demoapiv2.models.entities.Category;
 import com.domain.demoapiv2.models.entities.Supplier;
-import com.domain.demoapiv2.services.CategoryService;
 import com.domain.demoapiv2.services.SupplierService;
+import com.domain.demoapiv2.utility.ErrorParsingUtility;
 
 @RestController
-@RequestMapping("/api/supplier")
+@RequestMapping("/api/suppliers")
 public class SupplierController {
 
     @Autowired
@@ -37,11 +35,8 @@ public class SupplierController {
     public ResponseEntity<ResponseData<Supplier>> create(@Valid @RequestBody SupplierData supplierData, Errors errors) {
         ResponseData<Supplier> responseData = new ResponseData<>();
         if (errors.hasErrors()) {
-            for (ObjectError error : errors.getAllErrors()) {
-                responseData.getMessages().add(error.getDefaultMessage());
-            }
             responseData.setStatus(false);
-            responseData.setPayload(null);
+            responseData.setMessages(ErrorParsingUtility.parse(errors));
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseData);
         }
         Supplier supplier = modelMapper.map(supplierData, Supplier.class);
@@ -64,11 +59,8 @@ public class SupplierController {
     public ResponseEntity<ResponseData<Supplier>> update(@Valid @RequestBody SupplierData supplierData, Errors errors) {
         ResponseData<Supplier> responseData = new ResponseData<>();
         if (errors.hasErrors()) {
-            for (ObjectError error : errors.getAllErrors()) {
-                responseData.getMessages().add(error.getDefaultMessage());
-            }
             responseData.setStatus(false);
-            responseData.setPayload(null);
+            responseData.setMessages(ErrorParsingUtility.parse(errors));
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseData);
         }
         Supplier supplier = modelMapper.map(supplierData, Supplier.class);

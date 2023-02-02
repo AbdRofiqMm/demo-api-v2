@@ -3,6 +3,7 @@ package com.domain.demoapiv2.services;
 import java.util.List;
 
 import com.domain.demoapiv2.models.entities.Product;
+import com.domain.demoapiv2.models.entities.Supplier;
 
 public interface ProductService {
 
@@ -15,5 +16,7 @@ public interface ProductService {
     public void removeOne(Long id);
 
     public List<Product> findByName(String name);
+
+    public void addSupplier(Supplier supplier, Long productId);
 
 }
